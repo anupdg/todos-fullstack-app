@@ -131,14 +131,14 @@ public interface ITodoService
 ```
 Todos.Services/
 ├── Services/
-│   └── TodoService.cs           # Business logic implementation
+│   └── TodoService.cs              # Business logic implementation
 ├── Interfaces/
-│   └── ITodoService.cs          # Service contract
+│   └── ITodoService.cs             # Service contract
 ├── Models/
-│   ├── TodoModel.cs             # Domain model
-│   ├── CreateTodoInput.cs       # Create DTO
-│   └── UpdateTodoInput.cs       # Update DTO
-└── ServiceCollectionExtensions.cs # DI registration
+│   ├── TodoModel.cs                # Domain model
+│   ├── CreateTodoInput.cs          # Create DTO
+│   └── UpdateTodoInput.cs          # Update DTO
+└── ServiceCollectionExtensions.cs  # DI registration
 ```
 
 ### 4. Todos.Data (Data Access Layer)
