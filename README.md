@@ -26,13 +26,13 @@ A modern, production-ready full-stack todo application showcasing best practices
 │   (Frontend)    │                    │   (Backend)      │
 │   Port: 3000    │                    │   Port: 5000     │
 └─────────────────┘                    └──────────────────┘
-│                                       │
+│                                      │
 │ • React 19                           │ • .NET 9
 │ • Relay (GraphQL Client)             │ • GraphQL (HotChocolate)
 │ • Bootstrap                          │ • Entity Framework Core
 │ • Nginx (Production)                 │ • SQLite Database
 │ • CRACO (Build Tool)                 │ • Clean Architecture
-│                                       │ • CORS Enabled
+│                                      │ • CORS Enabled
 └─────────────────┘                    └──────────────────┘
 ```
 
@@ -165,7 +165,7 @@ mutation CreateTodo($input: CreateTodoInput!) {
   }
 }
 
-mutation UpdateTodo($id: Int!, $input: UpdateTodoInput!) {
+mutation UpdateTodo($id: UUID!, $input: UpdateTodoInput!) {
   updateTodo(id: $id, input: $input) {
     id
     title

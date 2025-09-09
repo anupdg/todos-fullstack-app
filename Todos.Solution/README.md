@@ -19,24 +19,24 @@ A robust GraphQL API built with .NET 9, implementing Clean Architecture principl
 │              Todos.Api.Gql (GraphQL Layer)                  │
 │  • Query Extensions                                         │
 │  • Mutation Extensions                                      │
-│  • GraphQL Type Definitions                                │
-│  • Resolver Logic                                          │
+│  • GraphQL Type Definitions                                 │
+│  • Resolver Logic                                           │
 └─────────────────┬───────────────────────────────────────────┘
                   │
 ┌─────────────────▼───────────────────────────────────────────┐
 │             Todos.Services (Application Layer)              │
-│  • Business Logic                                          │
-│  • DTOs and Models                                         │
-│  • Service Interfaces                                      │
-│  • Validation Rules                                        │
+│  • Business Logic                                           │
+│  • DTOs and Models                                          │
+│  • Service Interfaces                                       │
+│  • Validation Rules                                         │
 └─────────────────┬───────────────────────────────────────────┘
                   │
 ┌─────────────────▼───────────────────────────────────────────┐
 │              Todos.Data (Infrastructure Layer)              │
-│  • Entity Framework DbContext                              │
-│  • Entity Models                                           │
-│  • Database Migrations                                     │
-│  • Repository Pattern                                      │
+│  • Entity Framework DbContext                               │
+│  • Entity Models                                            │
+│  • Database Migrations                                      │
+│  • Repository Pattern                                       │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -54,11 +54,11 @@ A robust GraphQL API built with .NET 9, implementing Clean Architecture principl
 **Key Files:**
 ```
 Todos.Api/src/
-├── Program.cs                 # Application startup and configuration
-├── appsettings.json          # Development configuration
+├── Program.cs                  # Application startup and configuration
+├── appsettings.json            # Development configuration
 ├── appsettings.Production.json # Production configuration
-├── Todos.Api.csproj          # Project dependencies
-└── Todos.db                  # SQLite database file
+├── Todos.Api.csproj            # Project dependencies
+└── Todos.db                    # SQLite database file
 ```
 
 **Configuration Highlights:**
@@ -98,7 +98,7 @@ Todos.Api.Gql/
 ├── IQueryExtension.cs                 # Query interface
 ├── IMutationExtension.cs              # Mutation interface
 ├── Constants.cs                       # GraphQL constants
-└── Todos.Api.Gql.csproj              # Project dependencies
+└── Todos.Api.Gql.csproj               # Project dependencies
 ```
 
 **Design Pattern:**
@@ -122,8 +122,8 @@ public interface ITodoService
 {
     Task<List<TodoModel>> GetTodosAsync();
     Task<TodoModel> CreateTodoAsync(CreateTodoInput input);
-    Task<TodoModel> UpdateTodoAsync(int id, UpdateTodoInput input);
-    Task<bool> DeleteTodoAsync(int id);
+    Task<TodoModel> UpdateTodoAsync(Guid id, UpdateTodoInput input);
+    Task<bool> DeleteTodoAsync(Guid id);
 }
 ```
 
@@ -154,13 +154,12 @@ Todos.Services/
 ```csharp
 public class Todo
 {
-    public int Id { get; set; }
-    public string Title { get; set; } = string.Empty;
-    public string Description { get; set; } = string.Empty;
+    [Key]
+    public Guid Id { get; set; } = Guid.NewGuid();
+    public string Title { get; set; }
+    public string Description { get; set; }
     public bool IsCompleted { get; set; }
-    public string Status { get; set; } = "Pending";
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-    public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    public string Status { get; set; }
 }
 ```
 
@@ -260,41 +259,46 @@ dotnet ef migrations remove -p Todos.Data/src -s Todos.Api/src
 
 **Query:**
 ```graphql
-type Query {
-  todos: [Todo!]!
-}
-
-type Todo {
-  id: Int!
-  title: String!
-  description: String!
-  isCompleted: Boolean!
-  status: String!
-  createdAt: DateTime!
-  updatedAt: DateTime!
+type query {
+  todos: [TodoModel] @cost(weight: "10")
+  todo(id: UUID!): TodoModel @cost(weight: "10")
 }
 ```
 
 **Mutations:**
 ```graphql
-type Mutation {
-  createTodo(input: CreateTodoInput!): Todo!
-  updateTodo(id: Int!, input: UpdateTodoInput!): Todo!
-  deleteTodo(id: Int!): Boolean!
+type mutation {
+  createTodo(input: CreateTodoInput): TodoModel @cost(weight: "10")
+  updateTodo(id: UUID!, input: UpdateTodoInput): TodoModel @cost(weight: "10")
+  deleteTodo(id: UUID!): Boolean! @cost(weight: "10")
+}
+```
+
+**Types:**
+```graphql
+type TodoModel {
+  id: UUID!
+  title: String!
+  description: String!
+  isCompleted: Boolean!
+  status: String!
 }
 
 input CreateTodoInput {
   title: String!
   description: String!
   status: String!
+  isCompleted: Boolean!
 }
 
 input UpdateTodoInput {
-  title: String
-  description: String
-  status: String
-  isCompleted: Boolean
+  title: String!
+  description: String!
+  status: String!
+  isCompleted: Boolean!
 }
+
+scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
 ```
 
 ## 🐳 Docker Configuration
