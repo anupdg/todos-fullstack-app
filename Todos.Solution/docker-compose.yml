@@ -1,0 +1,57 @@
+# Todos Application Stack
+services:
+  # Backend API Service
+  todos-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: todos-api
+    ports:
+      - "5000:8080"  # External:Internal
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+    volumes:
+      # Mount the database file if using SQLite
+      - ./Todos.Api/src/Todos.db:/app/Todos.db
+    restart: unless-stopped
+    networks:
+      - todos-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "com.todos.service=api"
+      - "com.todos.group=todos-app"
+
+  # Frontend React App Service  
+  todos-app:
+    build:
+      context: ../todos.app
+      dockerfile: Dockerfile
+    container_name: todos-app
+    ports:
+      - "3000:80"  # External:Internal
+    environment:
+      - NODE_ENV=production
+      - REACT_APP_API_URL=http://localhost:5000
+    restart: unless-stopped
+    depends_on:
+      todos-api:
+        condition: service_healthy
+    networks:
+      - todos-network
+    labels:
+      - "com.todos.service=frontend"
+      - "com.todos.group=todos-app"
+
+# Custom network for service communication
+networks:
+  todos-network:
+    driver: bridge
+    name: todos-network
+    labels:
+      - "com.todos.network=main"

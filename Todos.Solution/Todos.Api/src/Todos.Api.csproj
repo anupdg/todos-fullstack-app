@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <RootNamespace>Todos.Api</RootNamespace>
+    <AssemblyName>Todos.Api</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="9.0.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Todos.Api.Gql\Todos.Api.Gql.csproj" />
+    <ProjectReference Include="..\..\Todos.Services\Todos.Services.csproj" />
+  </ItemGroup>
+
+</Project>

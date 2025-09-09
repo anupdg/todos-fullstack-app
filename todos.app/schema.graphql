@@ -1,0 +1,61 @@
+schema {
+  query: query
+  mutation: mutation
+}
+
+type TodoModel {
+  id: UUID!
+  title: String!
+  description: String!
+  isCompleted: Boolean!
+  status: String!
+}
+
+type mutation {
+  createTodo(input: CreateTodoInput): TodoModel @cost(weight: "10")
+  updateTodo(id: UUID!, input: UpdateTodoInput): TodoModel @cost(weight: "10")
+  deleteTodo(id: UUID!): Boolean! @cost(weight: "10")
+}
+
+type query {
+  todos: [TodoModel] @cost(weight: "10")
+  todo(id: UUID!): TodoModel @cost(weight: "10")
+}
+
+input CreateTodoInput {
+  title: String!
+  description: String!
+  status: String!
+  isCompleted: Boolean!
+}
+
+input UpdateTodoInput {
+  title: String!
+  description: String!
+  status: String!
+  isCompleted: Boolean!
+}
+
+"Defines when a policy shall be executed."
+enum ApplyPolicy {
+  "Before the resolver was executed."
+  BEFORE_RESOLVER
+  "After the resolver was executed."
+  AFTER_RESOLVER
+  "The policy is applied in the validation step before the execution."
+  VALIDATION
+}
+
+"The purpose of the `cost` directive is to define a `weight` for GraphQL types, fields, and arguments. Static analysis can use these weights when calculating the overall cost of a query or response."
+directive @cost(
+  "The `weight` argument defines what value to add to the overall cost for every appearance, or possible appearance, of a type, field, argument, etc."
+  weight: String!
+) on SCALAR | OBJECT | FIELD_DEFINITION | ARGUMENT_DEFINITION | ENUM | INPUT_FIELD_DEFINITION
+
+"The `@specifiedBy` directive is used within the type system definition language to provide a URL for specifying the behavior of custom scalar definitions."
+directive @specifiedBy(
+  "The specifiedBy URL points to a human-readable specification. This field will only read a result for scalar types."
+  url: String!
+) on SCALAR
+
+scalar UUID @specifiedBy(url: "https://tools.ietf.org/html/rfc4122")
